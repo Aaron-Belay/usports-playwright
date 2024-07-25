@@ -1,50 +1,57 @@
-const { chromium, firefox, webkit } = require('playwright');
+const { chromium } = require("playwright"); // Import only chromium browser from Playwright
 
-//Use to write files
-const fs = require('fs');
-
-// Helper function to wait
-function wait(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
- 
-// The functions
-
+/**
+ * Fetches team data from the specified stats URL and processes the table data.
+ * @param {string} statsUrl - The URL of the page containing the stats.
+ * @param {string} standingsUrl - The URL of the page containing the standings (not used in this function).
+ * @param {number} noOfTeams - The number of teams to process (not used in this function).
+ * @returns {Promise<void>}
+ */
 async function fetchTeamData(statsUrl, standingsUrl, noOfTeams) {
-    const browser = await chromium.launch({ headless: false });
-    const page = await browser.newPage();
-  
-    await page.goto(statsUrl, { timeout: 2 * 60 * 1000 }); // Time out if it takes too long
-  
-    await page.waitForTimeout(500); // Wait a few seconds on the page 
+  // Launch a Chromium browser instance in headless mode (set to true to hide the browser window)
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage(); // Open a new page
 
-    // Select the dropdown element and choose 100 entries
-    await page.selectOption('#dt-length-0', '100');
+  try {
+    // Navigate to the stats URL with a timeout of 2 minutes
+    await page.goto(statsUrl, { timeout: 2 * 60 * 1000 });
 
-    // Get all tbody elements
-    const tbodies = await page.$$('tbody');
+    // Wait for the page to load completely
+    await page.waitForTimeout(500);
 
+    // Select the dropdown element and choose '100' entries to display
+    await page.selectOption("#dt-length-0", "100");
+
+    // Get all 'tbody' elements on the page
+    const tbodies = await page.$$("tbody");
+
+    // Check if 'tbody' elements are present
     if (tbodies.length === 0) {
-        console.error("No tbody elements found");
-        await browser.close();
-        return;
+      console.error("No tbody elements found");
+      return;
     }
 
-    // Select the first tbody element
+    // Select the first 'tbody' element
     const firstTbody = tbodies[0];
 
-    // Get all rows within the first tbody
-    const rows = await firstTbody.$$('tr');
-    
-    // Log the number of rows
+    // Get all rows within the first 'tbody'
+    const rows = await firstTbody.$$("tr");
+
+    // Log the number of rows for debugging
     console.log(`Number of rows: ${rows.length}`);
-    const data = [];
-  
-    for (const row of rows) { // All of the rows in the table
-      const cols = await row.$$('td'); // Select all 'td' elements within each row
+
+    const data = []; // Array to store the extracted data
+
+    // Iterate over each row in the table
+    for (const row of rows) {
+      // Get all 'td' elements within each row
+      const cols = await row.$$("td");
+
+      // Check if there are more than one column in the row
       if (cols.length > 1) {
+        // Push the extracted data into the array
         data.push({
-          team_name: await cols[1].innerText(), 
+          team_name: await cols[1].innerText(),
           games_played: await cols[2].innerText(),
           field_goals: await cols[3].innerText(),
           field_goal_percentage: await cols[4].innerText(),
@@ -52,27 +59,34 @@ async function fetchTeamData(statsUrl, standingsUrl, noOfTeams) {
           three_point_percentage: await cols[6].innerText(),
           free_throws: await cols[7].innerText(),
           free_throw_percentage: await cols[8].innerText(),
-          points_per_game: await cols[9].innerText()
+          points_per_game: await cols[9].innerText(),
         });
       }
     }
+
     console.log(data);
-  
+  } catch (error) {
+    console.error("Error fetching team data:", error);
+  } finally {
+    // Ensure the browser is closed even if an error occurs
     await browser.close();
   }
-  
-(async () => {
-    const menUrls = [
-      'https://universitysport.prestosports.com/sports/mbkb/2023-24/teams?sort=&r=0&pos=off',
-      'https://universitysport.prestosports.com/sports/mbkb/2023-24/standings-conf'
-    ];
-    const womenUrls = [
-      'https://universitysport.prestosports.com/sports/wbkb/2023-24/teams?sort=&r=0&pos=off',
-      'https://universitysport.prestosports.com/sports/wbkb/2023-24/standings-conf'
-    ];
-  
-    await fetchTeamData(menUrls[0], menUrls[1], 52);
-  
-    console.log('Data has been saved.');
-  })();
+}
 
+// Main execution block
+(async () => {
+  // URLs for men’s and women’s teams and standings
+  const menUrls = [
+    "https://universitysport.prestosports.com/sports/mbkb/2023-24/teams?sort=&r=0&pos=off",
+    "https://universitysport.prestosports.com/sports/mbkb/2023-24/standings-conf",
+  ];
+  const womenUrls = [
+    "https://universitysport.prestosports.com/sports/wbkb/2023-24/teams?sort=&r=0&pos=off",
+    "https://universitysport.prestosports.com/sports/wbkb/2023-24/standings-conf",
+  ];
+
+  // Fetch data for men's teams
+  await fetchTeamData(menUrls[0], menUrls[1], 52);
+
+  console.log("Data has been fetched.");
+})();

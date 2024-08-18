@@ -1,12 +1,6 @@
-// Import necessary modules
-const fs = require("fs"); // Node.js File System module for file operations
-const { chromium } = require("playwright"); // Import Chromium browser from Playwright for web scraping
-
-// Import everything from helper.js under the name "helpers"
-const helpers = require('../helperfunctions/helper.js');
 const {playerDataFields, sortCategories, playerStatGroups, playerStatGroupKeys } = require('./playerstats_settings.js');
 
-async function fetchAllPlayersData(league, headless = true, timeout = 120000) {
+async function fetchAllPlayersData(league, {chromium, helpers}, headless = true, timeout = 120000) {
   // Launch a Chromium browser instance in headless or visible mode
   const browser = await chromium.launch({ headless });
   const page = await browser.newPage(); // Open a new page

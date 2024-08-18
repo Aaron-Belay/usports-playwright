@@ -29,7 +29,7 @@ const playerDataFields = [
     "team"
 ];
   
-  // Mapping of team names to their respective conferences
+// Mapping of team names to their respective conferences
 const sortCategories = [
     
     "gp",
@@ -55,14 +55,12 @@ const sortCategories = [
   
 ];
 
-
-  // Mapping of stat group names to their respective dropdown values and number of stats
+// Mapping of stat group names to their respective dropdown values and number of stats
 const playerStatGroups = {
     "Offense": { number_of_stats: 8 },
     "Defense": { number_of_stats: 7 },
     "Ball Control": { number_of_stats: 3 },
 };
-
 
 // Convert the keys from the statGroups object to an array for easier iteration
 const playerStatGroupKeys = Object.keys(playerStatGroups);

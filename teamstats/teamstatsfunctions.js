@@ -1,28 +1,10 @@
-/**
- * This script scrapes and processes usports' sbasketball team statistics using Playwright.
- * It fetches data from specified stats and standings pages, covering various 
- * metrics such as shooting percentages, rebounding, ball control, efficiency, 
- * and defensive stats. The data is organized by team names and includes 
- * conference affiliations.
- * 
- * Key Components:
- * - `fs` for file operations
- * - `chromium` from Playwright for browser automation
- * - `teamDataFields` for defining data attributes
- * - `teamConference` for team-to-conference mapping
- * - `statGroups` for statistical categories and their dropdown values
- * 
- * This script is useful for gathering comprehensive team profiles for analysis.
- */
-
 // Import necessary modules
 const fs = require("fs"); // Node.js File System module for file operations
 const { chromium } = require("playwright"); // Import Chromium browser from Playwright for web scraping
 
 // Import everything from helper.js under the name "helpers"
-const helpers = require('./helperfunctions/helper.js');
-const { teamDataFields, teamConference, statGroups, statGroupKeys } = require('./teamstats_settings_testicles.js');
-
+const helpers = require('../helperfunctions/helper.js');
+const { teamDataFields, teamConference, statGroups, statGroupKeys } = require('./teamstats_settings.js');
 
 /**
  * Fetches team data from the specified stats and standings URLs and processes the table data.
@@ -218,51 +200,8 @@ async function fetchEachStatGroup(page, numberOfStats, data, globalStatIndex, gl
   }
 }
 
-/**
- * Merges men's and women's data into a single object.
- * @param {object} mensData - The data for men's teams.
- * @param {object} womensData - The data for women's teams.
- * @returns {object} - The merged data object.
- */
-async function mergeData(mensData, womensData) {
-  return {
-    mens: mensData,
-    womens: womensData,
-  };
-}
 
-
-// Main execution block
-(async () => {
-  // URLs for men’s and women’s teams and standings
-  const menUrls = [
-    "https://universitysport.prestosports.com/sports/mbkb/2023-24/teams?sort=&r=0&pos=off",
-    "https://universitysport.prestosports.com/sports/mbkb/2023-24/standings-conf",
-  ];
-  const womenUrls = [
-    "https://universitysport.prestosports.com/sports/wbkb/2023-24/teams?sort=&r=0&pos=off",
-    "https://universitysport.prestosports.com/sports/wbkb/2023-24/standings-conf",
-  ];
-
-  // Fetch data for men's teams
-  const mens_data = await fetchAllTeamData(menUrls[0], menUrls[1]);
-  const womens_data = await fetchAllTeamData(womenUrls[0], womenUrls[1]);
-
-  // Merge both sets of data
-  const team_data = await mergeData(mens_data, womens_data);
-
-  // Save the combined data to a file
-  fs.writeFile(
-    "team_data.json",
-    JSON.stringify(team_data, null, 2),
-    (err) => {
-      if (err) {
-        console.error("Error saving data to file:", err);
-      } else {
-        console.log("Data saved to team_data.json");
-      }
-    }
-  );
-
-  console.log("Data has been fetched.");
-})();
+// Export all constants and mappings at once
+module.exports = {
+    fetchAllTeamData
+};

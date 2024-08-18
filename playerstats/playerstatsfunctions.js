@@ -3,10 +3,10 @@ const fs = require("fs"); // Node.js File System module for file operations
 const { chromium } = require("playwright"); // Import Chromium browser from Playwright for web scraping
 
 // Import everything from helper.js under the name "helpers"
-const helpers = require('./helperfunctions/helper.js');
-const {playerDataFields, sortCategories, playerStatGroups, playerStatGroupKeys } = require('./playerstats_settings_testicles.js');
+const helpers = require('../helperfunctions/helper.js');
+const {playerDataFields, sortCategories, playerStatGroups, playerStatGroupKeys } = require('./playerstats_settings.js');
 
-async function fetchAllPlayersData(league, headless = false, timeout = 120000) {
+async function fetchAllPlayersData(league, headless = true, timeout = 120000) {
   // Launch a Chromium browser instance in headless or visible mode
   const browser = await chromium.launch({ headless });
   const page = await browser.newPage(); // Open a new page
@@ -68,7 +68,6 @@ async function fetchAllPlayersData(league, headless = false, timeout = 120000) {
   }
 }
 
-
 async function fetchEachPlayerStatGroup(page, numberOfStats, data, tbodyindex, globalStatIndex) {
   try {
     // Get all 'tbody' elements on the page
@@ -129,40 +128,7 @@ async function fetchEachPlayerStatGroup(page, numberOfStats, data, tbodyindex, g
   }
 }
 
-
-async function mergePlayersData(mensData, womensData) {
-  return {
-    players:{
-      mens: mensData,
-      womens: womensData,
-    }
-  };
-}
-
-// Main execution block
-(async () => {
-  // URLs for men’s and women’s teams and standings
-
-  // Fetch data for men's teams
-  const mens_data = await fetchAllPlayersData("m");
-  const womens_data = await fetchAllPlayersData("w");
-
-  // Merge both sets of data
-  const players_data = await mergePlayersData(mens_data, womens_data);
-
-  // Save the combined data to a file
-  fs.writeFile(
-    "players_data.json",
-    JSON.stringify(players_data, null, 2),
-    (err) => {
-      if (err) {
-        console.error("Error saving data to file:", err);
-      } else {
-        console.log("Data saved to players_data.json");
-      }
-    }
-  );
-
-  console.log("Data has been fetched.");
-})();
-
+// Export all constants and mappings at once
+module.exports = {
+    fetchAllPlayersData
+};

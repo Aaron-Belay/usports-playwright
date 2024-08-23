@@ -1,3 +1,4 @@
+// Array of player data fields categorized into Offensive, Ball Control (Defensive), and Ball Control Extended statistics.
 const playerDataFields = [
 
     // Offensive

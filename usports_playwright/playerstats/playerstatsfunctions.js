@@ -1,5 +1,16 @@
-const {playerDataFields, sortCategories, playerStatGroups, playerStatGroupKeys } = require('./playerstats_settings.js');
+const {playerDataFields, sortCategories, playerStatGroups, playerStatGroupKeys } = require('./playerstats_settings.js'); // Include Playerstat settings
 
+/**
+ * Asynchronously fetches and processes player statistics data from a specified sports league.
+ * Launches a headless or visible Chromium browser, navigates to specific URLs based on the league,
+ * and extracts player data for different statistical categories. The data is returned as an object.
+ *
+ * @param {string} league - The sports league identifier (e.g., 'mbkb' for men's basketball).
+ * @param {object} params - An object containing the Chromium browser instance and helper functions.
+ * @param {boolean} [headless=true] - Whether to run the browser in headless mode.
+ * @param {number} [timeout=120000] - Maximum time allowed for the page to load in milliseconds.
+ * @returns {Promise<object>} - A promise that resolves to an object containing all the extracted player data.
+ */
 async function fetchAllPlayersData(league, {chromium, helpers}, headless = true, timeout = 120000) {
   // Launch a Chromium browser instance in headless or visible mode
   const browser = await chromium.launch({ headless });
@@ -17,7 +28,7 @@ async function fetchAllPlayersData(league, {chromium, helpers}, headless = true,
     const data = {};
 
     for (let i = 0; i < 20; i++){
-      console.log(sortCategories[i]);
+      
       // Navigate to the stats URL with a specified timeout
       let statsUrl = `https://universitysport.prestosports.com/sports/${league}bkb/2023-24/players?sort=${sortCategories[i]}&view=&pos=sh&r=0`;
 
@@ -62,6 +73,18 @@ async function fetchAllPlayersData(league, {chromium, helpers}, headless = true,
   }
 }
 
+/**
+ * Asynchronously fetches and processes statistics for each player within a specific statistical group.
+ * It iterates through each row in a selected 'tbody' element, extracts relevant data, and populates
+ * the provided data object with the player's statistics.
+ *
+ * @param {object} page - The Puppeteer page object representing the currently active tab.
+ * @param {number} numberOfStats - The number of statistics to extract for each player.
+ * @param {object} data - An object that will be populated with the extracted player data.
+ * @param {number} tbodyindex - The index of the 'tbody' element to target on the page.
+ * @param {number} globalStatIndex - The starting index for the statistical fields to populate in the data object.
+ * @returns {Promise<void>} - A promise that resolves once the data has been successfully extracted and processed.
+ */
 async function fetchEachPlayerStatGroup(page, numberOfStats, data, tbodyindex, globalStatIndex) {
   try {
     // Get all 'tbody' elements on the page
@@ -109,9 +132,7 @@ async function fetchEachPlayerStatGroup(page, numberOfStats, data, tbodyindex, g
           // Ensure cols[innerNumber] exists before accessing its innerText
           if (cols[innerNumber]) {
             data[playerName][playerDataFields[localStatIndex]] = await cols[innerNumber].innerText();
-            //const field = playerDataFields[localStatIndex];
-            //const shush = awaitcols[innerNumber].innerText();
-            localStatIndex++;
+            localStatIndex++; // Increment next stat to add
           }
         }
       }
@@ -122,7 +143,7 @@ async function fetchEachPlayerStatGroup(page, numberOfStats, data, tbodyindex, g
   }
 }
 
-// Export all constants and mappings at once
+// Export Main Function 
 module.exports = {
     fetchAllPlayersData
 };

@@ -1,4 +1,4 @@
-const { teamDataFields, teamConference, statGroups, statGroupKeys } = require('./teamstats_settings.js');
+const { teamDataFields, teamConference, statGroups, statGroupKeys } = require('./teamstats_settings.js'); // Include Teamstat settings
 
 /**
  * Fetches team data from the specified stats and standings URLs and processes the table data.
@@ -195,7 +195,7 @@ async function fetchEachStatGroup(page, numberOfStats, data, globalStatIndex, gl
 }
 
 
-// Export all constants and mappings at once
+// Export Main Function
 module.exports = {
     fetchAllTeamData
 };
